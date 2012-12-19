@@ -18,6 +18,7 @@ public slots:
     void sendMessage();
     void updateClient(QString msg);
     void setserver();
+    void disconnect();
     void changename();
     void slotConnect();
     void slotDisconnect();

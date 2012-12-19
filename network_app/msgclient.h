@@ -11,7 +11,6 @@ class msgclient : public QTcpSocket
 public:
     explicit msgclient(QObject *parent = 0);
     void sendMessage(QString msg);
-
 signals:
     void updateClients(QString);
     void disconnected(int);

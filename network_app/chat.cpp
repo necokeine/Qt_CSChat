@@ -16,7 +16,7 @@ chat::chat(QWidget *parent) :
     connect(send,SIGNAL(clicked()),this,SLOT(sendMessage()));
     connect(message,SIGNAL(returnPressed()),this,SLOT(sendMessage()));
     connect(ch_name,SIGNAL(triggered()),this,SLOT(changename()));
-    connect(logout,SIGNAL(triggered()),client,SLOT(disconnectFromHostImplementation()));
+    connect(logout,SIGNAL(triggered()),this,SLOT(disconnect()));
     connect(login,SIGNAL(triggered()),this,SLOT(setserver()));
 }
 void chat::slotConnect(){
@@ -28,7 +28,20 @@ void chat::slotConnect(){
     Port->setEnabled(false);
     message->setEnabled(true);
     send->setEnabled(true);
+    QString msg="login!";
+    msg=MyNickname+":"+MyNickname+" "+msg;
+    if (strlen(msg.toUtf8())<1024){
+        client->sendMessage(msg);
+    }
 }
+void chat::disconnect(){
+    QString msg=MyNickname+":"+MyNickname+" logout!";
+    if (strlen(msg.toUtf8())<1024){
+        client->sendMessage(msg);
+    }
+    client->disconnectFromHost();
+}
+
 void chat::slotDisconnect(){
     login->setEnabled(true);
     logout->setEnabled(false);
@@ -56,6 +69,7 @@ int chat::appendMessage(QString Nickname, QString message){
     table->cellAt(0, 1).firstCursorPosition().insertText(message);
     QScrollBar *bar = text->verticalScrollBar();
     bar->setValue(bar->maximum());
+    this->activateWindow();
     return 0;
 }
 
@@ -86,10 +100,17 @@ void chat::updateClient(QString msg){
 void chat::changename(){
     chname * dlg;
     dlg=new chname(this);
+    QString msg=MyNickname+":"+MyNickname + " change name to ";
     dlg->returnname= & MyNickname;
     dlg->exec();
+    msg+=MyNickname;
+    if (! login->isEnabled())
+    if (strlen(msg.toUtf8())<1024){
+        client->sendMessage(msg);
+    }
 }
 
 chat::~chat()
 {
+    if (logout->isEnabled()) disconnect();
 }

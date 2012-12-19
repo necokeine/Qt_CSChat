@@ -7,11 +7,12 @@ msgclient::msgclient(QObject *parent)
     //connect(this,SIGNAL(disconnected()),this,SLOT(slotDisconnected()));
 }
 void msgclient::dataReceived(){
+    QString msg="";
     while (bytesAvailable()>0){
         char buf[1024];
         int length=bytesAvailable();
         read(buf,length);
-        QString msg=QString::fromUtf8(buf,length);
+        msg+=QString::fromUtf8(buf,length);
     }
     emit updateClients(msg);
 }
