@@ -1,6 +1,7 @@
 #ifndef MSGCLIENT_H
 #define MSGCLIENT_H
 
+#include "msgencode.h"
 #include <QObject>
 #include <QString>
 #include <QtNetwork/QtNetwork>
@@ -10,12 +11,14 @@ class msgclient : public QTcpSocket
     Q_OBJECT
 public:
     explicit msgclient(QObject *parent = 0);
-    void sendMessage(QString msg);
+    void sendMessage(msgEncode msg);
 signals:
-    void updateClients(QString);
+    void updateClients(msgEncode msg);
     void disconnected(int);
 protected slots:
     void dataReceived();
+private:
+    quint16 blocksize;
     
 };
 

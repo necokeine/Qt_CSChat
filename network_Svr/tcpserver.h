@@ -12,7 +12,7 @@ public:
     explicit Tcpserver(QWidget *parent = 0);
 public slots:
     void start_listen();
-    void NewMessage(QString);
+    void NewMessage(msgEncode);
 private:
     megserver * server;
 };

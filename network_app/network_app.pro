@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         chat.cpp \
     msgclient.cpp \
-    chname.cpp
+    chname.cpp \
+    msgencode.cpp
 
 HEADERS  += chat.h \
     msgclient.h \
-    chname.h
+    chname.h \
+    msgencode.h
 
 FORMS    += chat.ui \
     chname.ui

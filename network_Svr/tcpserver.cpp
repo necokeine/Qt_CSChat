@@ -8,7 +8,7 @@ Tcpserver::Tcpserver(QWidget *parent) :
     server = new megserver(parent);
     setWindowFlags(Qt::Dialog | Qt::WindowMinimizeButtonHint);
     connect(this->pb_start,SIGNAL(clicked()),this,SLOT(start_listen()));
-    connect(server,SIGNAL(GetMessage(QString)),this,SLOT(NewMessage(QString)));
+    connect(server,SIGNAL(GetMessage(msgEncode)),this,SLOT(NewMessage(msgEncode)));
 }
 
 void Tcpserver::start_listen(){
@@ -20,6 +20,6 @@ void Tcpserver::start_listen(){
         //listenÊ§°Ü
     }
 }
-void Tcpserver::NewMessage(QString msg){
-    text->append(msg);
+void Tcpserver::NewMessage(msgEncode msg){
+    text->append(msg.getName()+":"+msg.getmsg());
 }

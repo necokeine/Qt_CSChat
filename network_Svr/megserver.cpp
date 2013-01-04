@@ -9,18 +9,18 @@ megserver::megserver(QObject *parent, int port):
 
 void megserver::incomingConnection(int handle){
     msgclient * nowcon= new msgclient(this);
-    connect(nowcon,SIGNAL(updateClients(QString)),this,SLOT(updateClient(QString)));
+    connect(nowcon,SIGNAL(updateClients(msgEncode)),this,SLOT(updateClient(msgEncode)));
     connect(nowcon,SIGNAL(disconnected(int)),this,SLOT(slotDisconnected(int)));
     nowcon->setSocketDescriptor(handle);
     TcpSocketList.append(nowcon);
     //启动一个对话线程
 }
 
-void megserver::updateClient(QString msg){
+void megserver::updateClient(msgEncode msg){
     emit GetMessage(msg);
     for (int i=0;i<TcpSocketList.size();i++){
         QTcpSocket *item=TcpSocketList.at(i);
-        if (item->write(msg.toUtf8())){
+        if (item->write(msg.toStream())){
             continue;
             //这里处理一下失效的连接
         }
@@ -37,7 +37,8 @@ void megserver::slotDisconnected(int handle){
     }
     return;
 }
-void megserver::PushMessage(QString msg){
+
+void megserver::PushMessage(msgEncode msg){
     updateClient(msg);
     //启动一个线程
 }

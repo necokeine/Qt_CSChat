@@ -9,7 +9,7 @@ chat::chat(QWidget *parent) :
     MyNickname="User";
     client=new msgclient(this);
     logout->setEnabled(false);
-    connect(client,SIGNAL(updateClients(QString)),this,SLOT(updateClient(QString)));
+    connect(client,SIGNAL(updateClients(msgEncode)),this,SLOT(updateClient(msgEncode)));
     connect(client,SIGNAL(connected()),this,SLOT(slotConnect()));
     connect(client,SIGNAL(disconnected()),this,SLOT(slotDisconnect()));
     connect(SetServer,SIGNAL(clicked()),this,SLOT(setserver()));
@@ -20,7 +20,6 @@ chat::chat(QWidget *parent) :
     connect(login,SIGNAL(triggered()),this,SLOT(setserver()));
 }
 void chat::slotConnect(){
-    text->clear();
     login->setEnabled(false);
     logout->setEnabled(true);
     SetServer->setEnabled(false);
@@ -28,21 +27,18 @@ void chat::slotConnect(){
     Port->setEnabled(false);
     message->setEnabled(true);
     send->setEnabled(true);
-    QString msg="login!";
-    msg=MyNickname+":"+MyNickname+" "+msg;
-    if (strlen(msg.toUtf8())<1024){
-        client->sendMessage(msg);
-    }
+    msgEncode msg(MyNickname,MyNickname+"login!");
+    client->sendMessage(msg);
 }
 void chat::disconnect(){
-    QString msg=MyNickname+":"+MyNickname+" logout!";
-    if (strlen(msg.toUtf8())<1024){
-        client->sendMessage(msg);
-    }
-    client->disconnectFromHost();
+    msgEncode msg(MyNickname,MyNickname+" logout!");
+    client->sendMessage(msg);
+    client->close();
 }
 
 void chat::slotDisconnect(){
+    QString msg="logout form server!";
+    appendMessage(MyNickname,msg);
     login->setEnabled(true);
     logout->setEnabled(false);
     SetServer->setEnabled(true);
@@ -77,40 +73,39 @@ void chat::sendMessage(){
     if (message->text().isEmpty()){
         return ;
     }else{
-        QString msg=MyNickname+":"+message->text();
-        if (strlen(msg.toUtf8())<1024){
-            client->sendMessage(msg);
-        }
+        msgEncode msg(MyNickname,message->text());
+        client->sendMessage(msg);
         message->clear();
     }
     return ;
 }
 
-void chat::updateClient(QString msg){
-    QString Nickname=msg;
-    for (int i=0;i<Nickname.length();i++){
-        if (msg[i]==':'){
-            Nickname.resize(i);
-            msg=msg.right(msg.length()-i-1);
-            break;
-        }
-    }
-    appendMessage(Nickname,msg);
+void chat::updateClient(msgEncode msg){
+    QString Nickname = msg.getName();
+    QString message = msg.getmsg();
+    appendMessage(Nickname,message);
 }
 void chat::changename(){
     chname * dlg;
     dlg=new chname(this);
-    QString msg=MyNickname+":"+MyNickname + " change name to ";
+    QString oldNickname=MyNickname;
     dlg->returnname= & MyNickname;
     dlg->exec();
-    msg+=MyNickname;
-    if (! login->isEnabled())
-    if (strlen(msg.toUtf8())<1024){
+    if (! login->isEnabled()){
+        msgEncode msg(MyNickname,oldNickname+" change name to "+MyNickname);
         client->sendMessage(msg);
     }
 }
 
 chat::~chat()
 {
-    if (logout->isEnabled()) disconnect();
+    if (! login->isEnabled()){
+        msgEncode msg(MyNickname,MyNickname+" logout!");
+        client->sendMessage(msg);
+        client->close();
+    }
+}
+
+void chat::closeEvent(QCloseEvent * event){
+    return QWidget::closeEvent(event);
 }

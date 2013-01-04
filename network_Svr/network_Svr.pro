@@ -15,10 +15,15 @@ TEMPLATE = app
 SOURCES += main.cpp\
         tcpserver.cpp \
     megserver.cpp \
-    msgclient.cpp
+    msgclient.cpp \
+    msgencode.cpp
 
 HEADERS  += tcpserver.h \
     megserver.h \
-    msgclient.h
+    msgclient.h \
+    msgencode.h
 
 FORMS    += tcpserver.ui
+
+OTHER_FILES += \
+    readme.txt

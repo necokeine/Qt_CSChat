@@ -1,0 +1,2 @@
+README
+这是NET Chat的服务器端的程序，megserver是信息接收并且转发的程序。

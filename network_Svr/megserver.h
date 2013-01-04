@@ -6,19 +6,20 @@
 #include <QList>
 #include <QString>
 #include "msgclient.h"
+#include "msgencode.h"
 
 class megserver: public QTcpServer
 {
     Q_OBJECT
 public:
     megserver(QObject *parent = 0, int port = 0);
-    void PushMessage(QString);
+    void PushMessage(msgEncode);
     QList<msgclient *> TcpSocketList;
 signals:
-    void updateServer(QString);
-    void GetMessage(QString);
+    void updateServer(msgEncode);
+    void GetMessage(msgEncode);
 public slots:
-    void updateClient(QString);
+    void updateClient(msgEncode);
     void slotDisconnected(int handle);
 protected:
     void incomingConnection(int handle);

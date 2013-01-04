@@ -1,19 +1,26 @@
 #include "msgclient.h"
 #include <windows.h>
-
+#include <string>
 msgclient::msgclient(QObject *parent)
 {
     connect(this,SIGNAL(readyRead()),this,SLOT(dataReceived()));
-    connect(this,SIGNAL(disconnected()),this,SLOT(slotDisconnected()));
+    blocksize=0;
 }
 void msgclient::dataReceived(){
-    while (bytesAvailable()>0){
-        char buf[1024];
-        int length=bytesAvailable();
-        //int length=min(bytesAvailable(),1024);
-        read(buf,length);
-        QString msg;
-        msg=QString::fromUtf8(buf,length);
-        emit updateClients(msg);
+    QDataStream in(this);
+    in.setVersion(QDataStream::Qt_4_8);
+    if (blocksize==0){
+        if (bytesAvailable()<sizeof(quint16)) return;
+        in>>blocksize;
     }
+    if (bytesAvailable()<blocksize) return;
+    QString message;
+    in>>message;
+    /*char *buf = new char[blocksize+10];
+    in.readRawData(buf,blocksize);
+    QByteArray arr(buf,blocksize);
+    delete buf;*/
+    blocksize=0;
+    msgEncode msg(message);
+    emit updateClients(msg);
 }
